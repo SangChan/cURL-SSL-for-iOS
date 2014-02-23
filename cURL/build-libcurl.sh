@@ -21,8 +21,9 @@
 ###########################################################################
 #  Change values here							  #
 #									  #
-VERSION="7.21.5"								  #
-SDKVERSION="4.3"								  #
+VERSION="7.35.0"							  #
+SDKVERSIONSIM="7.0"							  #
+SDKVERSION="7.0"							  #
 OPENSSL="${PWD}/../OpenSSL"						  #
 #									  #
 ###########################################################################
@@ -58,52 +59,58 @@ cd "${CURRENTPATH}/src/curl-${VERSION}"
 # iPhone Simulator
 ARCH="i386"
 PLATFORM="iPhoneSimulator"
-echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 echo "Please stand by..."
 
-export CC="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include -L${OPENSSL}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}.sdk"
+export IPHONEOS_DEPLOYMENT_TARGET="4.3"
+export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
+export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -L${OPENSSL}"
+export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -I${OPENSSL}/include -D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
+mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk"
 
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}.sdk/build-libcurl-${VERSION}.log"
+LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk/build-libcurl-${VERSION}.log"
 
-echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Configure libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}.sdk -disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk -disable-shared -with-random=/dev/urandom --with-ssl 
 
-echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Make libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
+make 
+make install 
+make clean 
 
-echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
 
-#############
-# iPhoneOS armv6
-ARCH="armv6"
-PLATFORM="iPhoneOS"
-echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+############
+# iPhone Simulator
+ARCH="x86_64"
+PLATFORM="iPhoneSimulator"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 echo "Please stand by..."
 
-export CC="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include -L${OPENSSL}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
+export IPHONEOS_DEPLOYMENT_TARGET="4.3"
+export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
+export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -L${OPENSSL}"
+export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -I${OPENSSL}/include -D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
+mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk"
 
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VERSION}.log"
+LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk/build-libcurl-${VERSION}.log"
 
-echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Configure libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk -disable-shared -with-random=/dev/urandom --with-ssl
 
-echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Make libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
+make
+make install
+make clean
 
-echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
 
 #############
@@ -113,21 +120,79 @@ PLATFORM="iPhoneOS"
 echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 echo "Please stand by..."
 
-export CC="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include -L${OPENSSL}"
+export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
+export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 
 LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VERSION}.log"
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl 
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
+make 
+make install 
+make clean 
+
+echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
+#############
+
+#############
+# iPhoneOS armv7s
+ARCH="armv7s"
+PLATFORM="iPhoneOS"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Please stand by..."
+
+export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
+export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
+mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
+
+LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VERSION}.log"
+
+echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl 
+
+echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+
+make 
+make install 
+make clean 
+
+echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
+#############
+
+#############
+# iPhoneOS arm64
+ARCH="arm64"
+PLATFORM="iPhoneOS"
+echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+echo "Please stand by..."
+
+export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
+export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
+mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
+
+LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VERSION}.log"
+
+echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=arm --disable-shared -with-random=/dev/urandom --with-ssl
+
+echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+
+make
+make install
+make clean
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############
@@ -136,10 +201,10 @@ echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 # Universal Library
 echo "Build universal library..."
 
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv6.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libcurl.a -output ${CURRENTPATH}/libcurl.a
+lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}-x86_64.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libcurl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libcurl.a -output ${CURRENTPATH}/libcurl.a
 
 mkdir -p ${CURRENTPATH}/include
-cp -R ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}.sdk/include/curl ${CURRENTPATH}/include/
+cp -R ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}.sdk/include/curl ${CURRENTPATH}/include/
 echo "Building all steps done."
 echo "Cleaning up..."
 rm -rf ${CURRENTPATH}/src

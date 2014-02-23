@@ -46,3 +46,8 @@ cp -p "${CURRENTPATH}/cURL/libcurl.a" "${BUILD_PATH}/cURL"
 cp -Rp "${CURRENTPATH}/cURL/include/curl" "${BUILD_PATH}/cURL/Headers/"
 
 echo "Building libraries done."
+echo
+
+xcrun -sdk iphoneos lipo -info "${BUILD_PATH}/OpenSSL/libcrypto.a"
+xcrun -sdk iphoneos lipo -info "${BUILD_PATH}/OpenSSL/libssl.a"
+xcrun -sdk iphoneos lipo -info "${BUILD_PATH}/cURL/libcurl.a"
