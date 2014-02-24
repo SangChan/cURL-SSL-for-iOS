@@ -71,15 +71,15 @@ export CPPFLAGS="-D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET
 
 echo "Configure openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk" 
+./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk" > "${LOG}" 2>&1
 # add -isysroot to CC=
 sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk !" "Makefile"
 
 echo "Make openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make 
-make install
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
@@ -101,15 +101,15 @@ export CPPFLAGS="-D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET
 
 echo "Configure openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk" -DOPENSSL_NO_ASM
+./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk" -DOPENSSL_NO_ASM > "${LOG}" 2>&1
 # add -isysroot to CC=
 sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk !" "Makefile"
 
 echo "Make openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make
-make install
-make clean
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
@@ -128,7 +128,7 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VER
 
 echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" 
+./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"  > "${LOG}" 2>&1
 
 sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
 # remove sig_atomic for iPhoneOS
@@ -136,9 +136,9 @@ sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal
 
 echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make 
-make install 
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############
@@ -157,7 +157,7 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VER
 
 echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" 
+./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"  > "${LOG}" 2>&1
 
 sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
 # remove sig_atomic for iPhoneOS
@@ -165,9 +165,9 @@ sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal
 
 echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make 
-make install
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 
@@ -187,7 +187,7 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VER
 
 echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
+./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" > "${LOG}" 2>&1
 
 sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
 # remove sig_atomic for iPhoneOS
@@ -195,9 +195,9 @@ sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal
 
 echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make
-make install
-make clean
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############

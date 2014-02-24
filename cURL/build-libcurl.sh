@@ -21,7 +21,7 @@
 ###########################################################################
 #  Change values here							  #
 #									  #
-VERSION="7.35.0"							  #
+VERSION="7.35.0-32k"							  #
 SDKVERSIONSIM="7.0"							  #
 SDKVERSION="7.0"							  #
 OPENSSL="${PWD}/../OpenSSL"						  #
@@ -73,13 +73,13 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk/build-libcurl-${VERSION}
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk -disable-shared -with-random=/dev/urandom --with-ssl 
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk -disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make 
-make install 
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
@@ -102,13 +102,13 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk/build-libcurl-${
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk -disable-shared -with-random=/dev/urandom --with-ssl
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk -disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-make
-make install
-make clean
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
 #############
@@ -130,13 +130,13 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VER
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl 
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make 
-make install 
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############
@@ -158,13 +158,13 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VER
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl 
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=${ARCH}-apple-darwin --disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make 
-make install 
-make clean 
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############
@@ -186,13 +186,13 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-libcurl-${VER
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=arm --disable-shared -with-random=/dev/urandom --with-ssl
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk --host=arm --disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 
-make
-make install
-make clean
+make >> "${LOG}" 2>&1
+make install >> "${LOG}" 2>&1
+make clean >> "${LOG}" 2>&1
 
 echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
 #############
