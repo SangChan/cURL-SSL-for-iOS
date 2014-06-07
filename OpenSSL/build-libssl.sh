@@ -21,9 +21,9 @@
 ###########################################################################
 #  Change values here							  #
 #									  #
-VERSION="1.0.1f"							  #
-SDKVERSIONSIM="7.0"							  #
-SDKVERSION="7.0"							  #
+VERSION="1.0.1h"							  #
+SDKVERSIONSIM="7.1"							  #
+SDKVERSION="7.1"							  #
 #									  #
 ###########################################################################
 #									  #
@@ -34,7 +34,7 @@ SDKVERSION="7.0"							  #
 CURRENTPATH=`pwd`
 DEVELOPER=`xcode-select --print-path`
 
-set -e
+#set -e
 if [ ! -e openssl-${VERSION}.tar.gz ]; then
 	echo "Downloading openssl-${VERSION}.tar.gz"
     curl -O http://www.openssl.org/source/openssl-${VERSION}.tar.gz

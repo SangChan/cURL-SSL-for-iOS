@@ -33,3 +33,17 @@ Xcode 5: Updated scripts to work with Xcode 5 and include new 64-bit targets (ja
 	armv7s 	- iPhoneOS
 	arm64 	- iPhoneOS [new]
 
+
+7 Jun 2014
+----------
+Updated to use new OpenSSL version (1.0.1h).  Updated build scirpt to pull down latest cacert.pem.
+
+NOTE:  To use the same libcurl header files for 32-bit and 64-bit targets, you need to add a buildtime condition to the curlbuild.h to define the sizeof(long):
+
+	/* The size of `long', as computed by sizeof. */
+	#ifdef __LP64__
+	#define CURL_SIZEOF_LONG 8
+	#else
+	#define CURL_SIZEOF_LONG 4
+	#endif
+
