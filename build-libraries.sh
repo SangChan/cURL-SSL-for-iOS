@@ -48,6 +48,7 @@ cp -Rp "${CURRENTPATH}/cURL/include/curl" "${BUILD_PATH}/cURL/Headers/"
 echo "Building libraries done."
 echo
 
+cd "${CURRENTPATH}"
 echo "Grabbing CA Root Certs..."
 wget http://curl.haxx.se/ca/cacert.pem
 echo

@@ -21,10 +21,11 @@
 ###########################################################################
 #  Change values here							  #
 #									  #
-VERSION="7.37.0"							  #
-SDKVERSIONSIM="7.1"							  #
-SDKVERSION="7.1"							  #
+VERSION="7.40.0"							  #
+SDKVERSIONSIM=`xcrun -sdk iphoneos --show-sdk-version`
+SDKVERSION=`xcrun -sdk iphoneos --show-sdk-version`
 OPENSSL="${PWD}/../OpenSSL"						  #
+export IPHONEOS_DEPLOYMENT_TARGET="6.1"
 #									  #
 ###########################################################################
 #									  #
@@ -62,9 +63,8 @@ PLATFORM="iPhoneSimulator"
 echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 echo "Please stand by..."
 
-export IPHONEOS_DEPLOYMENT_TARGET="4.3"
 export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
+export CFLAGS="-arch ${ARCH} -pipe -Os -gdwarf-2 -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
 export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -L${OPENSSL}"
 export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -I${OPENSSL}/include -D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk"
@@ -73,7 +73,7 @@ LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk/build-libcurl-${VERSION}
 
 echo "Configure libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
-./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk -disable-shared -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
+./configure -prefix=${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk -disable-shared --enable-static -with-random=/dev/urandom --with-ssl > "${LOG}" 2>&1
 
 echo "Make libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 
@@ -91,9 +91,8 @@ PLATFORM="iPhoneSimulator"
 echo "Building libcurl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
 echo "Please stand by..."
 
-export IPHONEOS_DEPLOYMENT_TARGET="4.3"
 export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
+export CFLAGS="-arch ${ARCH} -pipe -Os -gdwarf-2 -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
 export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -L${OPENSSL}"
 export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk -I${OPENSSL}/include -D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk"
@@ -121,7 +120,7 @@ echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 echo "Please stand by..."
 
 export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export CFLAGS="-arch ${ARCH} -pipe -Os -gdwarf-2 -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
 export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
 export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
@@ -149,7 +148,7 @@ echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 echo "Please stand by..."
 
 export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export CFLAGS="-arch ${ARCH} -pipe -Os -gdwarf-2 -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
 export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
 export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
@@ -177,7 +176,7 @@ echo "Building libcurl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
 echo "Please stand by..."
 
 export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk"
+export CFLAGS="-arch ${ARCH} -pipe -Os -gdwarf-2 -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk"
 export LDFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -L${OPENSSL}"
 export CPPFLAGS="-arch ${ARCH} -isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk -I${OPENSSL}/include"
 mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"

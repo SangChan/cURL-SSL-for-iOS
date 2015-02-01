@@ -47,3 +47,8 @@ NOTE:  To use the same libcurl header files for 32-bit and 64-bit targets, you n
 	#define CURL_SIZEOF_LONG 4
 	#endif
 
+
+28 Jan 2015
+-----------
+Updated build scripts to work with Xcode 6.1.1 and iOS 8.
+

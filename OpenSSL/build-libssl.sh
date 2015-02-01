@@ -19,202 +19,141 @@
 #  limitations under the License.
 #
 ###########################################################################
-#  Change values here							  #
-#									  #
-VERSION="1.0.1h"							  #
-SDKVERSIONSIM="7.1"							  #
-SDKVERSION="7.1"							  #
-#									  #
+#  Change values here
+#
+#VERSION="1.0.1l"
+VERSION="1.0.2"	
+SDKVERSION=`xcrun -sdk iphoneos --show-sdk-version`
+#
 ###########################################################################
-#									  #
-# Don't change anything under this line!				  #
-#									  #
+#
+# Don't change anything under this line!
+#
 ###########################################################################
+
 
 CURRENTPATH=`pwd`
-DEVELOPER=`xcode-select --print-path`
+ARCHS="i386 x86_64 armv7 armv7s arm64"
+DEVELOPER=`xcode-select -print-path`
 
-#set -e
+if [ ! -d "$DEVELOPER" ]; then
+  echo "xcode path is not set correctly $DEVELOPER does not exist (most likely because of xcode > 4.3)"
+  echo "run"
+  echo "sudo xcode-select -switch <xcode path>"
+  echo "for default installation:"
+  echo "sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer"
+  exit 1
+fi
+
+case $DEVELOPER in  
+     *\ * )
+           echo "Your Xcode path contains whitespaces, which is not supported."
+           exit 1
+          ;;
+esac
+
+case $CURRENTPATH in  
+     *\ * )
+           echo "Your path contains whitespaces, which is not supported by 'make install'."
+           exit 1
+          ;;
+esac
+
+set -e
 if [ ! -e openssl-${VERSION}.tar.gz ]; then
 	echo "Downloading openssl-${VERSION}.tar.gz"
-    curl -O http://www.openssl.org/source/openssl-${VERSION}.tar.gz
+    curl -O https://www.openssl.org/source/openssl-${VERSION}.tar.gz
 else
 	echo "Using openssl-${VERSION}.tar.gz"
 fi
 
 if [ -d  ${CURRENTPATH}/src ]; then
-	rm -rf ${CURRENTPATH}/src
+        rm -rf ${CURRENTPATH}/src
 fi
 
 if [ -d ${CURRENTPATH}/bin ]; then
-	rm -rf ${CURRENTPATH}/bin
+        rm -rf ${CURRENTPATH}/bin
+fi
+
+if [ -d ${CURRENTPATH}/lib ]; then
+        rm -rf ${CURRENTPATH}/lib
 fi
 
 mkdir -p "${CURRENTPATH}/src"
+mkdir -p "${CURRENTPATH}/bin"
+mkdir -p "${CURRENTPATH}/lib"
+
 tar zxf openssl-${VERSION}.tar.gz -C "${CURRENTPATH}/src"
 cd "${CURRENTPATH}/src/openssl-${VERSION}"
 
-############
-# iPhone Simulator
-ARCH="i386"
-PLATFORM="iPhoneSimulator"
-echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
-echo "Please stand by..."
 
-export CC="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc -arch ${ARCH}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk"
+for ARCH in ${ARCHS}
+do
+	if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]];
+	then
+		PLATFORM="iPhoneSimulator"
+	else
+		sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
+		PLATFORM="iPhoneOS"
+	fi
+	
+	export CROSS_TOP="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
+	export CROSS_SDK="${PLATFORM}${SDKVERSION}.sdk"
+	export BUILD_TOOLS="${DEVELOPER}"
 
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk/build-openssl-${VERSION}.log"
+	echo "Building openssl-${VERSION} for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+	echo "Please stand by..."
 
-export IPHONEOS_DEPLOYMENT_TARGET="4.3"
-export CPPFLAGS="-D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
+	export CC="${BUILD_TOOLS}/usr/bin/gcc -arch ${ARCH}"
+	mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
+	LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VERSION}.log"
 
-echo "Configure openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
+	set +e
+    if [[ "$VERSION" =~ 1.0.0. ]]; then
+	    ./Configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" > "${LOG}" 2>&1
+	elif [ "${ARCH}" == "x86_64" ]; then
+	    ./Configure darwin64-x86_64-cc --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" > "${LOG}" 2>&1
+    else
+	    ./Configure iphoneos-cross --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" > "${LOG}" 2>&1
+    fi
+    
+    if [ $? != 0 ];
+    then 
+    	echo "Problem while configure - Please check ${LOG}"
+    	exit 1
+    fi
 
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}.sdk" > "${LOG}" 2>&1
-# add -isysroot to CC=
-sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk !" "Makefile"
+	# add -isysroot to CC=
+	sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=7.0 !" "Makefile"
 
-echo "Make openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
+	if [ "$1" == "verbose" ];
+	then
+		make
+	else
+		make >> "${LOG}" 2>&1
+	fi
+	
+	if [ $? != 0 ];
+    then 
+    	echo "Problem while make - Please check ${LOG}"
+    	exit 1
+    fi
+    
+    set -e
+	make install >> "${LOG}" 2>&1
+	make clean >> "${LOG}" 2>&1
+done
 
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
+echo "Build library..."
+lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/lib/libssl.a  ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libssl.a -output ${CURRENTPATH}/libssl.a
 
-echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
-#############
-
-############
-# iPhone Simulator
-ARCH="x86_64"
-PLATFORM="iPhoneSimulator"
-echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
-echo "Please stand by..."
-
-export CC="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/usr/bin/gcc -arch ${ARCH}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk"
-
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk/build-openssl-${VERSION}.log"
-
-export IPHONEOS_DEPLOYMENT_TARGET="4.3"
-export CPPFLAGS="-D__IPHONE_OS_VERSION_MIN_REQUIRED=${IPHONEOS_DEPLOYMENT_TARGET%%.*}0000"
-
-echo "Configure openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
-
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSIONSIM}-${ARCH}.sdk" -DOPENSSL_NO_ASM > "${LOG}" 2>&1
-# add -isysroot to CC=
-sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSIONSIM}.sdk !" "Makefile"
-
-echo "Make openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}"
-
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
-
-echo "Building openssl for ${PLATFORM} ${SDKVERSIONSIM} ${ARCH}, finished"
-#############
-
-#############
-# iPhoneOS armv7
-ARCH="armv7"
-PLATFORM="iPhoneOS"
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-echo "Please stand by..."
-
-export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch ${ARCH}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
-
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VERSION}.log"
-
-echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"  > "${LOG}" 2>&1
-
-sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
-# remove sig_atomic for iPhoneOS
-sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
-
-echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
-
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
-#############
-
-#############
-# iPhoneOS armv7s
-ARCH="armv7s"
-PLATFORM="iPhoneOS"
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-echo "Please stand by..."
-
-export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch ${ARCH}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
-
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VERSION}.log"
-
-echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"  > "${LOG}" 2>&1
-
-sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
-# remove sig_atomic for iPhoneOS
-sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
-
-echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
-
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
-
-#############
-
-#############
-# iPhoneOS arm64
-ARCH="arm64"
-PLATFORM="iPhoneOS"
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-echo "Please stand by..."
-
-export CC="${DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch ${ARCH}"
-mkdir -p "${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
-
-LOG="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk/build-openssl-${VERSION}.log"
-
-echo "Configure openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-./configure BSD-generic32 --openssldir="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk" > "${LOG}" 2>&1
-
-sed -ie "s!^CFLAG=!CFLAG=-isysroot ${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}${SDKVERSION}.sdk !" "Makefile"
-# remove sig_atomic for iPhoneOS
-sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
-
-echo "Make openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-
-make >> "${LOG}" 2>&1
-make install >> "${LOG}" 2>&1
-make clean >> "${LOG}" 2>&1
-
-echo "Building openssl for ${PLATFORM} ${SDKVERSION} ${ARCH}, finished"
-#############
-
-#############
-# Universal Library
-echo " "
-echo "Build universal library..."
-
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}-x86_64.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libssl.a -output ${CURRENTPATH}/libssl.a
-
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}-x86_64.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libcrypto.a -output ${CURRENTPATH}/libcrypto.a
+lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/lib/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/lib/libcrypto.a -output ${CURRENTPATH}/libcrypto.a
 
 mkdir -p ${CURRENTPATH}/include
-cp -R ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSIONSIM}.sdk/include/openssl ${CURRENTPATH}/include/
+cp -R ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/include/openssl ${CURRENTPATH}/include/
 echo "Building done."
 echo "Cleaning up..."
 rm -rf ${CURRENTPATH}/src
 rm -rf ${CURRENTPATH}/bin
 echo "Done."
+
